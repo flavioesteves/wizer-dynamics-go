@@ -1,2 +1,2 @@
-[ ] - GitHub Actions
-[ ] - DockerFile
+* GitHub Actions
+* DockerFile
