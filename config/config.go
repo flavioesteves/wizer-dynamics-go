@@ -16,14 +16,14 @@ type Settings struct {
 }
 
 type ApplicationSettings struct {
-	Port uint16 `yaml:"port"`
+	Port int    `yaml:"port"`
 	Host string `yaml:"host"`
 }
 
 type DatabaseSettings struct {
 	Username     string `yaml:"username"`
 	Password     string `yaml:"password"`
-	Port         int16  `yaml:"port"`
+	Port         int    `yaml:"port"`
 	Host         string `yaml:"host"`
 	Model        string `yaml:"model"`
 	DatabaseName string `yaml:"database_name"`
@@ -32,7 +32,7 @@ type DatabaseSettings struct {
 type JWTSettings struct {
 	Secret    string `yaml:"secret"`
 	ExpiredIn string `yaml:"expired_in"`
-	MaxAge    int16  `yaml:"max_age"`
+	MaxAge    int    `yaml:"max_age"`
 }
 
 type CloudSettings struct {
@@ -42,12 +42,22 @@ type CloudSettings struct {
 func GetConfiguration() (Settings, error) {
 	var settings Settings
 
+	workingDirectory, err := os.Getwd()
+	if err != nil {
+		fmt.Println(err)
+	}
+
+	// Build the config files path
+	basePath := fmt.Sprintf("%s/configuration/base.yaml", workingDirectory)
+	localPath := fmt.Sprintf("%s/configuration/local.yaml", workingDirectory)
+	productionPath := fmt.Sprintf("%s/configuration/production.yaml", workingDirectory)
+
 	env := os.Getenv("APP_ENVIRONMENT")
 	if env == "" {
 		env = "local"
 	}
 
-	baseFile, err := os.Open("../configuration/base.yaml")
+	baseFile, err := os.Open(basePath)
 	if err != nil {
 		fmt.Println("Error opening base.yaml", err)
 	}
@@ -63,9 +73,9 @@ func GetConfiguration() (Settings, error) {
 
 	switch env {
 	case "local":
-		envFile, err = os.Open("../configuration/local.yaml")
+		envFile, err = os.Open(localPath)
 	case "production":
-		envFile, err = os.Open("../configuration/production.yaml")
+		envFile, err = os.Open(productionPath)
 
 	default:
 		fmt.Println("Warning Unknown environment", env)
