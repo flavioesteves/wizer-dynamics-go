@@ -2,7 +2,7 @@ package main
 
 import (
 	"fmt"
-	"github.com/flavioesteves/wizer-dynamics-go/config"
+	"github.com/flavioesteves/wizer-dynamics-go/configs"
 	"github.com/flavioesteves/wizer-dynamics-go/internal/app"
 )
 

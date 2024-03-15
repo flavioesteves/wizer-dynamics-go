@@ -3,13 +3,15 @@ package app
 import (
 	"context"
 	"fmt"
-	"github.com/flavioesteves/wizer-dynamics-go/config"
-	"net/http"
-
 	"github.com/gin-gonic/gin"
+	"net/http"
+	"time"
 	//"github.com/go-chi/cors"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
+
+	"github.com/flavioesteves/wizer-dynamics-go/configs"
+	"github.com/flavioesteves/wizer-dynamics-go/internal/routes"
 )
 
 type Application struct {
@@ -18,17 +20,16 @@ type Application struct {
 }
 
 func Build(c *config.Settings) (*Application, error) {
-	dbClient, err := getDbClient(&c.Database)
+	//TODO use this connection for models/controllers
+	_, err := connectDB(&c.Database)
 	if err != nil {
 		fmt.Println("Failed to connect to the database")
 	}
-
-	fmt.Println(dbClient)
-
 	appAddress := fmt.Sprintf("%s:%d", c.Application.Host, c.Application.Port)
 
-	fmt.Println(appAddress)
 	router := gin.Default()
+	exerciseGroup := router.Group("/exercise")
+	routes.RegisterExerciseRoutes(exerciseGroup)
 
 	// Start the server
 	server := &http.Server{
@@ -39,13 +40,19 @@ func Build(c *config.Settings) (*Application, error) {
 	return &Application{Server: server, Port: c.Application.Port}, nil
 }
 
-// Connect to database
-func getDbClient(dbSettings *config.DatabaseSettings) (*mongo.Client, error) {
+func connectDB(dbSettings *config.DatabaseSettings) (*mongo.Client, error) {
 	mongoURI := fmt.Sprintf("%s://%s:%d", dbSettings.Model, dbSettings.Host, dbSettings.Port)
-	client, err := mongo.Connect(context.TODO(), options.Client().ApplyURI(mongoURI))
+
+	// Try to connect
+	ctx, cancel := context.WithTimeout(context.Background(), 10*time.Second)
+	defer cancel()
+
+	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
 
 	if err != nil {
 		fmt.Println("Failed to connect to the database")
 	}
+
+	fmt.Println("Connected to MongoDB at: ", mongoURI)
 	return client, nil
 }
