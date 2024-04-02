@@ -1,20 +1,9 @@
 package main
 
 import (
-	"fmt"
-	"github.com/flavioesteves/wizer-dynamics-go/configs"
-	"github.com/flavioesteves/wizer-dynamics-go/internal/app"
+	"github.com/flavioesteves/wizer-dynamics-go/internal/api"
 )
 
 func main() {
-	configuration, err := config.GetConfiguration()
-	if err != nil {
-		fmt.Println("error:", err)
-	}
-
-	appBuild, err := app.Build(&configuration)
-	if err != nil {
-		fmt.Println("error:", err)
-	}
-	appBuild.Server.ListenAndServe()
+	api.Run()
 }

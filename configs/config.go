@@ -13,6 +13,7 @@ type Settings struct {
 	Database    DatabaseSettings    `yaml:"database"`
 	Cloud       CloudSettings       `yaml:"cloud"`
 	JWT         JWTSettings         `yaml:"jwt"`
+	Environment string
 }
 
 type ApplicationSettings struct {
@@ -48,9 +49,9 @@ func GetConfiguration() (Settings, error) {
 	}
 
 	// Build the config files path
-	basePath := fmt.Sprintf("%s/configuration/base.yaml", workingDirectory)
-	localPath := fmt.Sprintf("%s/configuration/local.yaml", workingDirectory)
-	productionPath := fmt.Sprintf("%s/configuration/production.yaml", workingDirectory)
+	basePath := fmt.Sprintf("%s/config-files/base.yaml", workingDirectory)
+	localPath := fmt.Sprintf("%s/config-files/local.yaml", workingDirectory)
+	productionPath := fmt.Sprintf("%s/config-files/production.yaml", workingDirectory)
 
 	env := os.Getenv("APP_ENVIRONMENT")
 	if env == "" {
@@ -74,9 +75,10 @@ func GetConfiguration() (Settings, error) {
 	switch env {
 	case "local":
 		envFile, err = os.Open(localPath)
+		settings.Environment = "local"
 	case "production":
 		envFile, err = os.Open(productionPath)
-
+		settings.Environment = "production"
 	default:
 		fmt.Println("Warning Unknown environment", env)
 	}
