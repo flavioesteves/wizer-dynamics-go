@@ -10,9 +10,8 @@ import (
 	"go.mongodb.org/mongo-driver/mongo/options"
 
 	"github.com/flavioesteves/wizer-dynamics-go/configs"
+	"github.com/flavioesteves/wizer-dynamics-go/internal/routers"
 )
-
-const version = "1.0.0"
 
 type appConfig struct {
 	port        int
@@ -36,26 +35,26 @@ func build() (*application, error) {
 		environment: serverConfig.Environment,
 	}
 
-	app := &application{
-		config: *cfg,
-	}
-
 	_, e := connectDB(&serverConfig.Database)
 	if e != nil {
 		fmt.Println("Failed to connect to the database")
 	}
 
 	appAddress := fmt.Sprintf("%s:%d", serverConfig.Application.Host, serverConfig.Application.Port)
+	router := routers.SetupRouter()
 
 	// Start server
 	server := &http.Server{
 		Addr:    appAddress,
-		Handler: app.routes(),
+		Handler: router,
 	}
 	fmt.Println(server.Addr)
 
-	//TODO: refactor this logic
-	app.server = server
+	app := &application{
+		config: *cfg,
+		server: server,
+	}
+
 	return app, nil
 }
 
@@ -64,9 +63,14 @@ func Run() {
 	if err != nil {
 		fmt.Println("Error in build process")
 	}
-	app.server.ListenAndServe()
+	err = app.server.ListenAndServe()
+	if err != nil {
+		fmt.Println("Error on Listen and Serve")
+	}
+
 }
 
+// DATABASE
 func connectDB(dbSettings *config.DatabaseSettings) (*mongo.Client, error) {
 	mongoURI := fmt.Sprintf("%s://%s:%d", dbSettings.Model, dbSettings.Host, dbSettings.Port)
 
@@ -75,9 +79,15 @@ func connectDB(dbSettings *config.DatabaseSettings) (*mongo.Client, error) {
 	defer cancel()
 
 	client, err := mongo.Connect(ctx, options.Client().ApplyURI(mongoURI))
-
 	if err != nil {
 		fmt.Println("Failed to connect to the database")
+		return client, err
+	}
+	defer client.Disconnect(ctx)
+
+	if err := client.Ping(ctx, nil); err != nil {
+		fmt.Printf("Can't connect to db: %v", err)
+		return client, err
 	}
 
 	fmt.Println("Connected to MongoDB at: ", mongoURI)
