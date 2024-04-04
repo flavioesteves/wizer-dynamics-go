@@ -4,7 +4,6 @@ go 1.22.1
 
 require (
 	github.com/gin-gonic/gin v1.9.1
-	github.com/julienschmidt/httprouter v1.3.0
 	go.mongodb.org/mongo-driver v1.14.0
 	gopkg.in/yaml.v3 v3.0.1
 )

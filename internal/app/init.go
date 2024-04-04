@@ -1,4 +1,4 @@
-package api
+package app
 
 import (
 	"context"
@@ -16,6 +16,7 @@ import (
 type appConfig struct {
 	port        int
 	environment string
+	Settings    config.Settings
 }
 
 type application struct {
@@ -33,15 +34,16 @@ func build() (*application, error) {
 	cfg := &appConfig{
 		port:        serverConfig.Application.Port,
 		environment: serverConfig.Environment,
+		Settings:    serverConfig,
 	}
 
-	_, e := connectDB(&serverConfig.Database)
+	dbClient, e := connectDB(&serverConfig.Database)
 	if e != nil {
 		fmt.Println("Failed to connect to the database")
 	}
 
 	appAddress := fmt.Sprintf("%s:%d", serverConfig.Application.Host, serverConfig.Application.Port)
-	router := routers.SetupRouter()
+	router := routers.SetupRouter(*dbClient, &cfg.Settings.Database)
 
 	// Start server
 	server := &http.Server{
@@ -83,7 +85,6 @@ func connectDB(dbSettings *config.DatabaseSettings) (*mongo.Client, error) {
 		fmt.Println("Failed to connect to the database")
 		return client, err
 	}
-	defer client.Disconnect(ctx)
 
 	if err := client.Ping(ctx, nil); err != nil {
 		fmt.Printf("Can't connect to db: %v", err)
