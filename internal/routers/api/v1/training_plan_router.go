@@ -1,15 +1,15 @@
 package v1
 
 import (
-	"github.com/flavioesteves/wizer-dynamics-go/internal/controllers"
+	"github.com/flavioesteves/wizer-dynamics-go/internal/handlers"
 	"github.com/gin-gonic/gin"
 )
 
-func RegisterTrainingPlanRoutes(rg *gin.RouterGroup) {
-	rg.GET("", controllers.GetALlTrainings)
-	rg.POST("", controllers.AddTraining)
+func RegisterTrainingPlanRoutes(rg *gin.RouterGroup, h handlers.TrainingPlanHandler) {
+	rg.GET("", h.GetALlTrainings)
+	rg.POST("", h.AddTraining)
 
-	rg.GET("/:id", controllers.GetTrainingById)
-	rg.PUT("/:id", controllers.UpdateTrainingById)
-	rg.DELETE("/:id", controllers.DeleteExerciseById)
+	rg.GET("/:id", h.GetTrainingById)
+	rg.PUT("/:id", h.UpdateTrainingById)
+	rg.DELETE("/:id", h.DeleteTrainingByID)
 }
