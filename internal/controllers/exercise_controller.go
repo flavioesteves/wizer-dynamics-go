@@ -6,24 +6,28 @@ import (
 
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/bson"
-	"go.mongodb.org/mongo-driver/mongo"
 
-	"github.com/flavioesteves/wizer-dynamics-go/configs"
+	"github.com/flavioesteves/wizer-dynamics-go/internal/db"
 	"github.com/flavioesteves/wizer-dynamics-go/internal/models"
 )
 
-func GetAllExercises(c *gin.Context) {
+type ExerciseHandler struct {
+	store db.MongoDBStorer
+}
 
-	db := c.MustGet("db").(mongo.Client)
-	dbConfig := c.MustGet("dbConfig").(*config.DatabaseSettings)
+func NewExerciseHandler(eStore db.MongoDBStorer) *ExerciseHandler {
+	return &ExerciseHandler{
+		store: eStore,
+	}
+}
 
-	cursor, err := db.Database(dbConfig.DatabaseName).Collection("exercises").Find(context.TODO(), bson.D{{}})
+func (h *ExerciseHandler) GetAllExercises(c *gin.Context) {
+	cursor, err := h.store.DB.Collection(h.store.Coll).Find(context.TODO(), bson.D{{}})
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-
 	var exercises []models.Exercise
 	if err = cursor.All(context.TODO(), &exercises); err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})

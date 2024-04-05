@@ -6,9 +6,9 @@ import (
 	"github.com/flavioesteves/wizer-dynamics-go/internal/controllers"
 )
 
-func RegisterExerciseRoutes(rg *gin.RouterGroup) {
+func RegisterExerciseRoutes(rg *gin.RouterGroup, eHandler controllers.ExerciseHandler) {
 
-	rg.GET("", controllers.GetAllExercises)
+	rg.GET("", eHandler.GetAllExercises)
 	rg.POST("", controllers.AddExercise)
 
 	rg.GET("/:id", controllers.GetExerciseById)

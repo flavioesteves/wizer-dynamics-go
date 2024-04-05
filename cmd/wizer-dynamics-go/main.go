@@ -1,9 +1,9 @@
 package main
 
 import (
-	"github.com/flavioesteves/wizer-dynamics-go/internal/app"
+	"github.com/flavioesteves/wizer-dynamics-go/internal/api"
 )
 
 func main() {
-	app.Run()
+	api.Run()
 }
