@@ -11,17 +11,17 @@ import (
 	"github.com/flavioesteves/wizer-dynamics-go/internal/models"
 )
 
-type ExerciseHandler struct {
+type ExerciseController struct {
 	store db.MongoDBStorer
 }
 
-func NewExerciseHandler(eStore db.MongoDBStorer) *ExerciseHandler {
-	return &ExerciseHandler{
+func NewExerciseController(eStore db.MongoDBStorer) *ExerciseController {
+	return &ExerciseController{
 		store: eStore,
 	}
 }
 
-func (h *ExerciseHandler) GetAllExercises(c *gin.Context) {
+func (h *ExerciseController) GetAllExercises(c *gin.Context) {
 	cursor, err := h.store.DB.Collection(h.store.Coll).Find(context.TODO(), bson.D{{}})
 
 	if err != nil {
