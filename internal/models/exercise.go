@@ -5,9 +5,9 @@ import (
 )
 
 type Exercise struct {
-	ID    primitive.ObjectID `bson:"_id,omitempty"`
-	Name  string
-	Steps string
-	Video string
-	Photo string
+	ID    primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	Name  string             `json:"name" bson:"name"`
+	Steps string             `json:"steps" bson:"steps"`
+	Video string             `json:"video" bson:"video"`
+	Photo string             `json:"photo" bson:"photo"`
 }

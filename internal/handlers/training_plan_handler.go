@@ -1,13 +1,10 @@
 package handlers
 
 import (
-	"context"
 	"net/http"
 
 	"github.com/flavioesteves/wizer-dynamics-go/internal/db"
-	"github.com/flavioesteves/wizer-dynamics-go/internal/models"
 	"github.com/gin-gonic/gin"
-	"go.mongodb.org/mongo-driver/bson"
 )
 
 type TrainingPlanHandler struct {
@@ -21,25 +18,25 @@ func NewTrainingPlanHandler(tpStore db.MongoDBStorer) *TrainingPlanHandler {
 }
 
 func (h *TrainingPlanHandler) GetALlTrainings(c *gin.Context) {
-	cursor, err := h.store.DB.Collection(h.store.Coll).Find(context.TODO(), bson.D{{}})
+	trainingPlans, err := h.store.GetALlExercises(c)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	var trainingPlans []models.TrainingPlan
-	if err = cursor.All(context.TODO(), &trainingPlans); err != nil {
-		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
-		return
-	}
-
 	c.IndentedJSON(http.StatusOK, trainingPlans)
+}
 
+func (h *TrainingPlanHandler) GetTrainingById(c *gin.Context) {
+	id := c.Param("id")
+	trainingPlan, err := h.store.GetTrainigByID(c, id)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+	c.JSON(http.StatusOK, trainingPlan)
 }
 
 func (h *TrainingPlanHandler) AddTraining(c *gin.Context) {}
-
-func (h *TrainingPlanHandler) GetTrainingById(c *gin.Context) {}
 
 func (h *TrainingPlanHandler) UpdateTrainingById(c *gin.Context) {}
 

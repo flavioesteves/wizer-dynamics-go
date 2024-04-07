@@ -9,15 +9,15 @@ import (
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
-func (s *MongoDBStorer) InsertExercise(ctx context.Context, e *models.Exercise) error {
+func (s *MongoDBStorer) InsertExercise(ctx context.Context, e *models.Exercise) (*models.Exercise, error) {
 	res, err := s.DB.Collection(s.Coll).InsertOne(ctx, e)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	e.ID = res.InsertedID.(primitive.ObjectID)
 
-	return err
+	return e, err
 }
 
 func (s *MongoDBStorer) GetALlExercises(ctx context.Context) ([]*models.Exercise, error) {
@@ -55,5 +55,7 @@ func (s *MongoDBStorer) DeleteExerciseByID(ctx context.Context, id string) (*mon
 		return res, err
 	}
 
+	// TODO: Improve response currently is returning
+	// {"DeletedCount":1}
 	return res, err
 }
