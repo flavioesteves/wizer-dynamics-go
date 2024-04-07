@@ -19,7 +19,7 @@ func NewExerciseHandler(eStore db.MongoDBStorer) *ExerciseHandler {
 }
 
 func (h *ExerciseHandler) GetAllExercises(c *gin.Context) {
-	exercises, err := h.store.GetALl(c)
+	exercises, err := h.store.GetALlExercises(c)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
@@ -34,7 +34,7 @@ func (h *ExerciseHandler) AddExercise(c *gin.Context) {}
 func (h *ExerciseHandler) GetExerciseById(c *gin.Context) {
 	id := c.Param("id")
 
-	exercise, err := h.store.GetByID(c, id)
+	exercise, err := h.store.GetExerciseByID(c, id)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 	}
