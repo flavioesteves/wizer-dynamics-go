@@ -4,6 +4,7 @@ import (
 	"net/http"
 
 	"github.com/flavioesteves/wizer-dynamics-go/internal/db"
+	"github.com/flavioesteves/wizer-dynamics-go/internal/models"
 	"github.com/gin-gonic/gin"
 )
 
@@ -36,7 +37,20 @@ func (h *TrainingPlanHandler) GetTrainingById(c *gin.Context) {
 	c.JSON(http.StatusOK, trainingPlan)
 }
 
-func (h *TrainingPlanHandler) AddTraining(c *gin.Context) {}
+func (h *TrainingPlanHandler) AddTraining(c *gin.Context) {
+	var tp models.TrainingPlan
+
+	if err := c.ShouldBindJSON(&tp); err != nil {
+		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
+	}
+
+	trainingPlan, err := h.store.InsertTraining(c, &tp)
+	if err != nil {
+		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+	}
+
+	c.JSON(http.StatusOK, trainingPlan)
+}
 
 func (h *TrainingPlanHandler) UpdateTrainingById(c *gin.Context) {}
 

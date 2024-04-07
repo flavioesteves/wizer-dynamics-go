@@ -10,14 +10,14 @@ import (
 	"github.com/flavioesteves/wizer-dynamics-go/internal/models"
 )
 
-func (s *MongoDBStorer) InsertTraining(ctx context.Context, tp *models.TrainingPlan) error {
+func (s *MongoDBStorer) InsertTraining(ctx context.Context, tp *models.TrainingPlan) (*models.TrainingPlan, error) {
 	res, err := s.DB.Collection(s.Coll).InsertOne(ctx, tp)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	tp.ID = res.InsertedID.(primitive.ObjectID)
-	return err
+	return tp, err
 }
 
 func (s *MongoDBStorer) GetALlTrainings(ctx context.Context) ([]*models.TrainingPlan, error) {
