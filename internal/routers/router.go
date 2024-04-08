@@ -14,7 +14,7 @@ func SetupRouter(mDB *mongo.Database) *gin.Engine {
 
 	//Stores
 	exerciseStore := db.NewMongoDBStore(mDB, "exercises")
-	trainingPlansStore := db.NewMongoDBStore(mDB, "training_plans")
+	trainingPlansStore := db.NewMongoDBStore(mDB, "training_sessions")
 
 	// Handlers
 	exerciseHandler := handlers.NewExerciseHandler(*exerciseStore)
@@ -26,7 +26,7 @@ func SetupRouter(mDB *mongo.Database) *gin.Engine {
 	}
 
 	exerciseGroup := router.Group("/v1/exercises")
-	trainingPlanGroup := router.Group("/v1/training-plans")
+	trainingPlanGroup := router.Group("/v1/training-sessions")
 	v1.RegisterExerciseRoutes(exerciseGroup, *exerciseHandler)
 	v1.RegisterTrainingPlanRoutes(trainingPlanGroup, *trainingPlansHandler)
 

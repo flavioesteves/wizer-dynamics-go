@@ -32,20 +32,16 @@ func (s *MongoDBStorer) GetALlExercises(ctx context.Context) ([]*models.Exercise
 }
 
 func (s *MongoDBStorer) GetExerciseByID(ctx context.Context, id string) (*models.Exercise, error) {
-	var (
-		objID, _ = primitive.ObjectIDFromHex(id)
-		res      = s.DB.Collection(s.Coll).FindOne(ctx, bson.M{"_id": objID})
-		e        = &models.Exercise{}
-		err      = res.Decode(e)
-	)
+	objID, _ := primitive.ObjectIDFromHex(id)
+	res := s.DB.Collection(s.Coll).FindOne(ctx, bson.M{"_id": objID})
+	e := &models.Exercise{}
+	err := res.Decode(e)
 	return e, err
 }
 
 func (s *MongoDBStorer) DeleteExerciseByID(ctx context.Context, id string) (*mongo.DeleteResult, error) {
-	var (
-		objID, _ = primitive.ObjectIDFromHex(id)
-		res, err = s.DB.Collection(s.Coll).DeleteOne(ctx, bson.M{"_id": objID})
-	)
+	objID, _ := primitive.ObjectIDFromHex(id)
+	res, err := s.DB.Collection(s.Coll).DeleteOne(ctx, bson.M{"_id": objID})
 
 	if err != nil {
 		return res, err
@@ -55,7 +51,21 @@ func (s *MongoDBStorer) DeleteExerciseByID(ctx context.Context, id string) (*mon
 		return res, err
 	}
 
-	// TODO: Improve response currently is returning
-	// {"DeletedCount":1}
+	// TODO: Improve response, currently is returning {"DeleteCount: x"}
+	return res, err
+}
+
+func (s *MongoDBStorer) UpdateExerciseByID(ctx context.Context, e *models.Exercise) (*mongo.UpdateResult, error) {
+	update := bson.M{"$set": bson.M{
+		"name":  e.Name,
+		"video": e.Video,
+		"steps": e.Steps,
+		"photo": e.Photo,
+	}}
+
+	res, err := s.DB.Collection(s.Coll).UpdateOne(ctx, bson.M{"_id": e.ID}, update)
+	if err != nil {
+		return nil, err
+	}
 	return res, err
 }

@@ -2,7 +2,7 @@ package models
 
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
-type TrainingPlan struct {
+type TrainingSession struct {
 	ID            primitive.ObjectID `json:"id" bson:"_id,omitempty"`
 	Day           string             `json:"day" bson:"day"`
 	Theme         string             `json:"theme" bson:"theme"`
