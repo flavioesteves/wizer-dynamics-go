@@ -1,1 +1,56 @@
 package db
+
+import (
+	"context"
+
+	"go.mongodb.org/mongo-driver/bson"
+	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
+
+	"github.com/flavioesteves/wizer-dynamics-go/internal/models"
+)
+
+func (s *MongoDBStorer) InsertUser(ctx context.Context, u *models.User) (*models.User, error) {
+	res, err := s.DB.Collection(s.Coll).InsertOne(ctx, u)
+	if err != nil {
+		return nil, err
+	}
+
+	u.ID = res.InsertedID.(primitive.ObjectID)
+
+	return u, err
+}
+
+func (s *MongoDBStorer) GetALlUsers(ctx context.Context) ([]*models.User, error) {
+	cursor, err := s.DB.Collection(s.Coll).Find(ctx, map[string]any{})
+	if err != nil {
+		return nil, err
+	}
+
+	users := []*models.User{}
+	err = cursor.All(ctx, &users)
+	return users, err
+}
+
+func (s *MongoDBStorer) GetUserByID(ctx context.Context, id string) (*models.User, error) {
+	objID, _ := primitive.ObjectIDFromHex(id)
+	res := s.DB.Collection(s.Coll).FindOne(ctx, bson.M{"_id": objID})
+	e := &models.User{}
+	err := res.Decode(e)
+	return e, err
+}
+
+func (s *MongoDBStorer) UpdateUserByID(ctx context.Context, u *models.User) (*mongo.UpdateResult, error) {
+	update := bson.M{"$set": bson.M{
+		"email":      u.Email,
+		"password":   u.Password,
+		"updated":    u.Updated,
+		"created_at": u.CreatedAt,
+	}}
+
+	res, err := s.DB.Collection(s.Coll).UpdateOne(ctx, bson.M{"_id": u.ID}, update)
+	if err != nil {
+		return nil, err
+	}
+	return res, err
+}

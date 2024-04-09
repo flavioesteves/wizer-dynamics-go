@@ -3,10 +3,11 @@ package db
 import (
 	"context"
 
-	"github.com/flavioesteves/wizer-dynamics-go/internal/models"
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+
+	"github.com/flavioesteves/wizer-dynamics-go/internal/models"
 )
 
 func (s *MongoDBStorer) InsertExercise(ctx context.Context, e *models.Exercise) (*models.Exercise, error) {

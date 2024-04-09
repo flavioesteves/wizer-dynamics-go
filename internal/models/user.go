@@ -3,9 +3,9 @@ package models
 import "go.mongodb.org/mongo-driver/bson/primitive"
 
 type User struct {
-	ID       primitive.ObjectID `bson:"_id,omitempty"`
-	Email    string
-	Password string
-	Updated  string // TODO Implement time
-	Created  string // TODO Implement time
+	ID        primitive.ObjectID `json:"id" bson:"_id,omitempty"`
+	Email     string             `json:"email" bson:"email"`
+	Password  string             `json:"password" bson:"password"`
+	Updated   string             `json:"updated" bson:"updated"`
+	CreatedAt string             `json:"created_at" bson:"created_at"`
 }

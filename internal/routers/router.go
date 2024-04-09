@@ -14,11 +14,12 @@ func SetupRouter(mDB *mongo.Database) *gin.Engine {
 
 	//Stores
 	exerciseStore := db.NewMongoDBStore(mDB, "exercises")
-	trainingPlansStore := db.NewMongoDBStore(mDB, "training_sessions")
-
+	trainingSessionStore := db.NewMongoDBStore(mDB, "training_sessions")
+	userStore := db.NewMongoDBStore(mDB, "users")
 	// Handlers
 	exerciseHandler := handlers.NewExerciseHandler(*exerciseStore)
-	trainingPlansHandler := handlers.NewTrainingPlanHandler(*trainingPlansStore)
+	trainingSessionsHandler := handlers.NewTrainingPlanHandler(*trainingSessionStore)
+	userHandler := handlers.NewUserHandler(*userStore)
 	// Public routes
 	public := router.Group("/v1")
 	{
@@ -26,9 +27,11 @@ func SetupRouter(mDB *mongo.Database) *gin.Engine {
 	}
 
 	exerciseGroup := router.Group("/v1/exercises")
-	trainingPlanGroup := router.Group("/v1/training-sessions")
+	trainingSessionGroup := router.Group("/v1/training-sessions")
+	userGroup := router.Group("v1/users")
 	v1.RegisterExerciseRoutes(exerciseGroup, *exerciseHandler)
-	v1.RegisterTrainingPlanRoutes(trainingPlanGroup, *trainingPlansHandler)
+	v1.RegisterTrainingPlanRoutes(trainingSessionGroup, *trainingSessionsHandler)
+	v1.RegisterUsersRoutes(userGroup, *userHandler)
 
 	return router
 }
