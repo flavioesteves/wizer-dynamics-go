@@ -12,5 +12,5 @@ func RegisterUsersRoutes(rg *gin.RouterGroup, h handlers.UserHandler) {
 	rg.POST("", h.AddUser)
 
 	rg.GET("/:id", h.GetUserByID)
-	rg.GET("/:id", h.UpdateUserByID)
+	rg.PUT("/:id", h.UpdateUserByID)
 }

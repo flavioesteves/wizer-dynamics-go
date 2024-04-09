@@ -19,13 +19,13 @@ func NewTrainingPlanHandler(tpStore db.MongoDBStorer) *TrainingPlanHandler {
 }
 
 func (h *TrainingPlanHandler) GetALlTrainings(c *gin.Context) {
-	trainingPlans, err := h.store.GetALlExercises(c)
+	trainingSessions, err := h.store.GetALlTrainings(c)
 
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
 	}
-	c.IndentedJSON(http.StatusOK, trainingPlans)
+	c.IndentedJSON(http.StatusOK, trainingSessions)
 }
 
 func (h *TrainingPlanHandler) GetTrainingById(c *gin.Context) {

@@ -42,6 +42,7 @@ func Run() {
 	if err != nil {
 		fmt.Println("Error in build process")
 	}
+
 	fmt.Println("Server start at: ", app.server.Addr)
 	err = app.server.ListenAndServe()
 	if err != nil {

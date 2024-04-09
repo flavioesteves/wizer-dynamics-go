@@ -1,6 +1,7 @@
 package routers
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"go.mongodb.org/mongo-driver/mongo"
 
@@ -11,6 +12,7 @@ import (
 
 func SetupRouter(mDB *mongo.Database) *gin.Engine {
 	router := gin.Default()
+	router.Use(cors.Default())
 
 	//Stores
 	exerciseStore := db.NewMongoDBStore(mDB, "exercises")
