@@ -5,6 +5,7 @@ import (
 	"fmt"
 	"time"
 
+	"github.com/redis/go-redis/v9"
 	"go.mongodb.org/mongo-driver/mongo"
 	"go.mongodb.org/mongo-driver/mongo/options"
 
@@ -12,14 +13,16 @@ import (
 )
 
 type MongoDBStorer struct {
-	DB   *mongo.Database
-	Coll string
+	DB          *mongo.Database
+	Coll        string
+	RedisClient *redis.Client
 }
 
-func NewMongoDBStore(db *mongo.Database, coll string) *MongoDBStorer {
+func NewMongoDBStore(db *mongo.Database, redisClient *redis.Client, coll string) *MongoDBStorer {
 	return &MongoDBStorer{
-		DB:   db,
-		Coll: coll,
+		DB:          db,
+		RedisClient: redisClient,
+		Coll:        coll,
 	}
 }
 
