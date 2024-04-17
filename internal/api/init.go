@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"net/http"
 
+	//	"github.com/gin-contrib/sessions"
+	// redisSession "github.com/gin-contrib/sessions/redis"
 	"github.com/redis/go-redis/v9"
 
 	"github.com/flavioesteves/wizer-dynamics-go/configs"
@@ -27,11 +29,13 @@ func build() (*application, error) {
 	if e != nil {
 		fmt.Println("Failed to connect to the database")
 	}
+
 	// Redis
+	redisAddress := fmt.Sprintf("%s:%d", serverConfig.Redis.Host, serverConfig.Redis.Port)
 	redisClient := redis.NewClient(&redis.Options{
-		Addr:     "localhost:6379",
-		Password: "",
-		DB:       0,
+		Addr:     redisAddress,
+		Password: serverConfig.Redis.Password,
+		DB:       serverConfig.Redis.DB,
 	})
 	status := redisClient.Ping(context.Background())
 	fmt.Println(status)
@@ -44,6 +48,8 @@ func build() (*application, error) {
 		Addr:    appAddress,
 		Handler: router,
 	}
+	// Redis store
+	//store, _ := redisSession.NewStore(10, "tcp", redisAddress, "", []byte("secret"))
 
 	return &application{server: server}, nil
 }

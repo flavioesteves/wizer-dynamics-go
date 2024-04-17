@@ -13,6 +13,7 @@ type Settings struct {
 	Database    DatabaseSettings    `yaml:"database"`
 	Cloud       CloudSettings       `yaml:"cloud"`
 	JWT         JWTSettings         `yaml:"jwt"`
+	Redis       RedisSettings       `yaml:"redis"`
 	Environment string
 }
 
@@ -38,6 +39,13 @@ type JWTSettings struct {
 
 type CloudSettings struct {
 	MongodbURI string `yaml:"mongodb_uri"`
+}
+
+type RedisSettings struct {
+	Port     int    `yaml:"port"`
+	Host     string `yaml:"host"`
+	Password string `yaml:"password"`
+	DB       int    `yaml:"db"`
 }
 
 func GetConfiguration() (Settings, error) {

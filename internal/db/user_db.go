@@ -54,3 +54,12 @@ func (s *MongoDBStorer) UpdateUserByID(ctx context.Context, u *models.User) (*mo
 	}
 	return res, err
 }
+
+func (s *MongoDBStorer) IsValidCredentials(ctx context.Context, email string, password string) bool {
+	cur := s.DB.Collection(s.Coll).FindOne(ctx, bson.M{
+		"email":    email,
+		"password": password,
+	})
+
+	return cur.Err() == nil
+}

@@ -3,7 +3,7 @@ application:
   port: 8000
   host: 0.0.0.0
 database:
-  host: localhost
+  host: "localhost"
   port: 27017
   username: "mongodb"
   password: "password"
@@ -15,3 +15,8 @@ jwt:
   max_age: 120
 cloud:
   mongodb_uri: "mongodb://localhost:27017/?readPreference=primary&appname=MongoDB%20Compass&directConnection=true&ssl=false"
+redis:
+  host: "localhost"
+  port: 6379
+  password: ""
+  db: 0
