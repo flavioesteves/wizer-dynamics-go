@@ -30,6 +30,8 @@ func build() (*application, error) {
 		fmt.Println("Failed to connect to the database")
 	}
 
+	jwtSettings := serverConfig.JWT
+
 	// Redis
 	redisAddress := fmt.Sprintf("%s:%d", serverConfig.Redis.Host, serverConfig.Redis.Port)
 	redisClient := redis.NewClient(&redis.Options{
@@ -41,15 +43,13 @@ func build() (*application, error) {
 	fmt.Println(status)
 
 	appAddress := fmt.Sprintf("%s:%d", serverConfig.Application.Host, serverConfig.Application.Port)
-	router := routers.SetupRouter(dbClient.Database(serverConfig.Database.DatabaseName), redisClient)
+	router := routers.SetupRouter(dbClient.Database(serverConfig.Database.DatabaseName), redisClient, &jwtSettings)
 
 	// Start server
 	server := &http.Server{
 		Addr:    appAddress,
 		Handler: router,
 	}
-	// Redis store
-	//store, _ := redisSession.NewStore(10, "tcp", redisAddress, "", []byte("secret"))
 
 	return &application{server: server}, nil
 }

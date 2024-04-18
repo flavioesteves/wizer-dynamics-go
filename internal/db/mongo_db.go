@@ -16,13 +16,15 @@ type MongoDBStorer struct {
 	DB          *mongo.Database
 	Coll        string
 	RedisClient *redis.Client
+	JWT         *config.JWTSettings
 }
 
-func NewMongoDBStore(db *mongo.Database, redisClient *redis.Client, coll string) *MongoDBStorer {
+func NewMongoDBStore(db *mongo.Database, redisClient *redis.Client, coll string, jwt *config.JWTSettings) *MongoDBStorer {
 	return &MongoDBStorer{
 		DB:          db,
 		RedisClient: redisClient,
 		Coll:        coll,
+		JWT:         jwt,
 	}
 }
 

@@ -1,8 +1,8 @@
 package handlers
 
 import (
+	"fmt"
 	"net/http"
-	"os"
 	"time"
 
 	"github.com/flavioesteves/wizer-dynamics-go/internal/db"
@@ -50,18 +50,26 @@ func (handler *AuthHandler) SignInHandler(c *gin.Context) {
 	}
 
 	sessionToken := xid.New().String()
+	fmt.Println(sessionToken)
 	session := sessions.Default(c)
 	session.Set("username", user.Email)
 	session.Set("token", sessionToken)
+
 	session.Save()
 
-	c.JSON(http.StatusOK, gin.H{"message": "User signed in"})
+	c.JSON(http.StatusOK, gin.H{"message": "User signed in", "token": sessionToken})
 }
 
 func (handler *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
+		fmt.Println(c.Cookie("users_api"))
+
 		session := sessions.Default(c)
+
 		sessionToken := session.Get("token")
+		fmt.Println(sessionToken)
+		fmt.Println("After read sessionToken")
+
 		if sessionToken == nil {
 			c.JSON(http.StatusForbidden, gin.H{
 				"message": "Not Logged",
@@ -77,7 +85,7 @@ func (handler *AuthHandler) RefreshHandler(c *gin.Context) {
 	claims := &Claims{}
 	tkn, err := jwt.ParseWithClaims(tokenValue, claims,
 		func(token *jwt.Token) (interface{}, error) {
-			return []byte(os.Getenv("JWT_SECRET")), nil
+			return []byte(handler.store.JWT.Secret), nil
 		})
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
@@ -95,7 +103,7 @@ func (handler *AuthHandler) RefreshHandler(c *gin.Context) {
 	expirationTime := time.Now().Add(5 * time.Minute)
 	claims.ExpiresAt = expirationTime.Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodPS256, claims)
-	tokenString, err := token.SignedString(os.Getenv("JWT_SECRET"))
+	tokenString, err := token.SignedString(handler.store.JWT.Secret)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
