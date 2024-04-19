@@ -40,7 +40,7 @@ func (h *ExerciseHandler) GetAllExercises(c *gin.Context) {
 
 		c.IndentedJSON(http.StatusOK, exercises)
 	} else {
-		log.Printf("Request to Redis")
+		log.Printf("Request to Redis --> exercises")
 		exercises := make([]models.Exercise, 0)
 		json.Unmarshal([]byte(val), &exercises)
 		c.IndentedJSON(http.StatusOK, exercises)

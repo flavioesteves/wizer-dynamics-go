@@ -2,6 +2,8 @@ package db
 
 import (
 	"context"
+	"errors"
+	"fmt"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -11,6 +13,18 @@ import (
 )
 
 func (s *MongoDBStorer) InsertUser(ctx context.Context, u *models.User) (*models.User, error) {
+
+	filter := bson.M{"email": u.Email}
+	existingUser := &models.User{}
+
+	err := s.DB.Collection(s.Coll).FindOne(ctx, filter).Decode(existingUser)
+
+	fmt.Println(err)
+	if err == nil {
+		fmt.Println("Inside Nil")
+		return nil, errors.New("email already exists")
+	}
+
 	res, err := s.DB.Collection(s.Coll).InsertOne(ctx, u)
 	if err != nil {
 		return nil, err
@@ -24,6 +38,7 @@ func (s *MongoDBStorer) InsertUser(ctx context.Context, u *models.User) (*models
 func (s *MongoDBStorer) GetALlUsers(ctx context.Context) ([]*models.User, error) {
 	cursor, err := s.DB.Collection(s.Coll).Find(ctx, map[string]any{})
 	if err != nil {
+
 		return nil, err
 	}
 

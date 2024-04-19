@@ -1,31 +1,24 @@
-package handlers
+package middleware
 
 import (
-	"fmt"
 	"net/http"
 	"time"
 
-	"github.com/flavioesteves/wizer-dynamics-go/internal/db"
-	"github.com/flavioesteves/wizer-dynamics-go/internal/models"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 	"github.com/golang-jwt/jwt"
-
 	"github.com/rs/xid"
+
+	"github.com/flavioesteves/wizer-dynamics-go/internal/db"
+	"github.com/flavioesteves/wizer-dynamics-go/internal/models"
 )
 
 type AuthHandler struct {
 	store db.MongoDBStorer
 }
 
-func NewAuthHandler(aStore db.MongoDBStorer) *AuthHandler {
-	return &AuthHandler{
-		store: aStore,
-	}
-}
-
 type Claims struct {
-	Username string `json:"email"`
+	Usernma string `json:"email"`
 	jwt.StandardClaims
 }
 
@@ -34,7 +27,13 @@ type JWTOutput struct {
 	Expires time.Time `json:"expires"`
 }
 
-func (handler *AuthHandler) SignInHandler(c *gin.Context) {
+func NewAuthHandler(dbStore db.MongoDBStorer) *AuthHandler {
+	return &AuthHandler{
+		store: dbStore,
+	}
+}
+
+func (aH *AuthHandler) SignInHandler(c *gin.Context) {
 	var user models.User
 
 	if err := c.ShouldBindJSON(&user); err != nil {
@@ -42,7 +41,7 @@ func (handler *AuthHandler) SignInHandler(c *gin.Context) {
 		return
 	}
 
-	currUser := handler.store.IsValidCredentials(c, user.Email, user.Password)
+	currUser := aH.store.IsValidCredentials(c, user.Email, user.Password)
 
 	if !currUser {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": "Invalid username or password"})
@@ -50,25 +49,20 @@ func (handler *AuthHandler) SignInHandler(c *gin.Context) {
 	}
 
 	sessionToken := xid.New().String()
-	fmt.Println(sessionToken)
 	session := sessions.Default(c)
 	session.Set("username", user.Email)
 	session.Set("token", sessionToken)
-
 	session.Save()
 
-	c.JSON(http.StatusOK, gin.H{"message": "User signed in", "token": sessionToken})
+	c.JSON(http.StatusOK, gin.H{"message": "User signed in", "isLogin": currUser})
+
 }
 
-func (handler *AuthHandler) AuthMiddleware() gin.HandlerFunc {
+func (aH *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 	return func(c *gin.Context) {
-		fmt.Println(c.Cookie("users_api"))
-
 		session := sessions.Default(c)
 
 		sessionToken := session.Get("token")
-		fmt.Println(sessionToken)
-		fmt.Println("After read sessionToken")
 
 		if sessionToken == nil {
 			c.JSON(http.StatusForbidden, gin.H{
@@ -80,12 +74,12 @@ func (handler *AuthHandler) AuthMiddleware() gin.HandlerFunc {
 	}
 }
 
-func (handler *AuthHandler) RefreshHandler(c *gin.Context) {
+func (aH *AuthHandler) RefreshHandler(c *gin.Context) {
 	tokenValue := c.GetHeader("Authorization")
 	claims := &Claims{}
 	tkn, err := jwt.ParseWithClaims(tokenValue, claims,
 		func(token *jwt.Token) (interface{}, error) {
-			return []byte(handler.store.JWT.Secret), nil
+			return []byte(aH.store.JWT.Secret), nil
 		})
 	if err != nil {
 		c.JSON(http.StatusUnauthorized, gin.H{"error": err.Error()})
@@ -103,7 +97,7 @@ func (handler *AuthHandler) RefreshHandler(c *gin.Context) {
 	expirationTime := time.Now().Add(5 * time.Minute)
 	claims.ExpiresAt = expirationTime.Unix()
 	token := jwt.NewWithClaims(jwt.SigningMethodPS256, claims)
-	tokenString, err := token.SignedString(handler.store.JWT.Secret)
+	tokenString, err := token.SignedString(aH.store.JWT.Secret)
 	if err != nil {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
 		return
