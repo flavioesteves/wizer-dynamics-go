@@ -41,12 +41,12 @@ func SetupRouter(mDB *mongo.Database, redisClient *redis.Client, jwtSettings *co
 
 	//Stores
 	exerciseStore := db.NewMongoDBStore(mDB, redisClient, "exercises", nil)
-	trainingSessionStore := db.NewMongoDBStore(mDB, redisClient, "training_sessions", nil)
+	routineStore := db.NewMongoDBStore(mDB, redisClient, "routines", nil)
 	userStore := db.NewMongoDBStore(mDB, redisClient, "users", nil)
 	authStore := db.NewMongoDBStore(mDB, redisClient, "users", jwtSettings)
 	// Handlers
 	exerciseHandler := handlers.NewExerciseHandler(*exerciseStore)
-	trainingSessionsHandler := handlers.NewTrainingPlanHandler(*trainingSessionStore)
+	routineHandler := handlers.NewRoutineHandler(*routineStore)
 	userHandler := handlers.NewUserHandler(*userStore)
 	authHandler := middleware.NewAuthHandler(*authStore)
 	// Public routes
@@ -61,15 +61,15 @@ func SetupRouter(mDB *mongo.Database, redisClient *redis.Client, jwtSettings *co
 	// Private Routes
 	// Exercises
 	exerciseGroup := router.Group("/v1/exercises")
-	exerciseGroup.Use(authHandler.AuthMiddleware())
+	//exerciseGroup.Use(authHandler.AuthMiddleware())
 	// Training Session
-	trainingSessionGroup := router.Group("/v1/training-sessions")
-	trainingSessionGroup.Use(authHandler.AuthMiddleware())
+	routineGroup := router.Group("/v1/routines")
+	routineGroup.Use(authHandler.AuthMiddleware())
 	userGroup := router.Group("/v1/users")
 	userGroup.Use(authHandler.AuthMiddleware())
 
 	v1.RegisterUsersRoutes(userGroup, *userHandler)
 	v1.RegisterExerciseRoutes(exerciseGroup, *exerciseHandler)
-	v1.RegisterTrainingPlanRoutes(trainingSessionGroup, *trainingSessionsHandler)
+	v1.RegisterRoutinesRoutes(routineGroup, *routineHandler)
 	return router
 }
